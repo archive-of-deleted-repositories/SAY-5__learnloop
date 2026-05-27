@@ -23,7 +23,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <testcontainers.version>1.21.4</testcontainers.version>
     <jqwik.version>1.9.1</jqwik.version>
-    <coverage.line.min>0.70</coverage.line.min>
+    <coverage.line.min>0.75</coverage.line.min>
   </properties>
 
   <dependencies>
