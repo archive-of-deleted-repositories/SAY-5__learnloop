@@ -7,16 +7,20 @@ import com.say5.learnloop.data.LearnerSkillRatingRepository;
 import com.say5.learnloop.data.MasteryRepository;
 import com.say5.learnloop.data.QuestionRepository;
 import com.say5.learnloop.data.ResponseRepository;
+import com.say5.learnloop.data.ReviewScheduleRepository;
 import com.say5.learnloop.domain.LearnerSkillRating;
 import com.say5.learnloop.domain.MasteryLevel;
 import com.say5.learnloop.domain.MasteryRecord;
 import com.say5.learnloop.domain.Question;
 import com.say5.learnloop.domain.Response;
+import com.say5.learnloop.domain.ReviewSchedule;
 import com.say5.learnloop.engine.EloEngine;
 import com.say5.learnloop.engine.EloUpdate;
 import com.say5.learnloop.mastery.MasteryModel;
 import com.say5.learnloop.selection.QuestionSelector;
 import com.say5.learnloop.selection.QuestionSelector.Candidate;
+import com.say5.learnloop.selection.SpacedRepetition;
+import com.say5.learnloop.selection.SpacedRepetition.Schedule;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.Instant;
 import java.util.HashSet;
@@ -35,6 +39,7 @@ public class PracticeService {
   private final ResponseRepository responses;
   private final LearnerSkillRatingRepository ratings;
   private final MasteryRepository mastery;
+  private final ReviewScheduleRepository reviews;
   private final EngineProperties props;
 
   public PracticeService(
@@ -42,11 +47,13 @@ public class PracticeService {
       ResponseRepository responses,
       LearnerSkillRatingRepository ratings,
       MasteryRepository mastery,
+      ReviewScheduleRepository reviews,
       EngineProperties props) {
     this.questions = questions;
     this.responses = responses;
     this.ratings = ratings;
     this.mastery = mastery;
+    this.reviews = reviews;
     this.props = props;
   }
 
@@ -82,6 +89,8 @@ public class PracticeService {
     questions.save(question);
 
     MasteryRecord masteryRecord = recomputeMastery(learnerId, skillId, update.learnerRating());
+
+    updateReviewSchedule(learnerId, skillId, masteryRecord.getLevel(), correct);
 
     QuestionView next = pickNext(learnerId, skillId, update.learnerRating()).orElse(null);
 
@@ -130,5 +139,45 @@ public class PracticeService {
     return QuestionSelector.select(learnerRating, candidates, recent, props.targetSuccess())
         .flatMap(c -> questions.findById(c.questionId()))
         .map(q -> new QuestionView(q.getId(), q.getPrompt(), q.getDifficulty()));
+  }
+
+  /**
+   * Maintain the spaced-repetition schedule. A schedule is created when a skill first reaches
+   * MASTERED and is advanced or shortened on each subsequent answer treated as a recall review.
+   */
+  void updateReviewSchedule(long learnerId, long skillId, MasteryLevel level, boolean correct) {
+    Instant now = Instant.now();
+    Optional<ReviewSchedule> existing =
+        reviews.findById(new ReviewSchedule.Key(learnerId, skillId));
+
+    if (existing.isEmpty()) {
+      if (level == MasteryLevel.MASTERED) {
+        Schedule s = SpacedRepetition.Schedule.initial(now);
+        reviews.save(
+            new ReviewSchedule(
+                learnerId, skillId, s.repetitions(), s.easeFactor(), s.intervalDays(), s.dueAt()));
+      }
+      return;
+    }
+
+    ReviewSchedule row = existing.get();
+    Schedule prior =
+        new Schedule(
+            row.getRepetitions(), row.getEaseFactor(), row.getIntervalDays(), row.getDueAt());
+    Schedule nextSchedule = SpacedRepetition.review(prior, correct, now);
+    row.apply(
+        nextSchedule.repetitions(),
+        nextSchedule.easeFactor(),
+        nextSchedule.intervalDays(),
+        nextSchedule.dueAt());
+    reviews.save(row);
+  }
+
+  /** Skills currently due for spaced-repetition review for a learner. */
+  @Transactional(readOnly = true)
+  public List<Long> dueForReview(long learnerId) {
+    return reviews.findDue(learnerId, Instant.now()).stream()
+        .map(ReviewSchedule::getSkillId)
+        .toList();
   }
 }

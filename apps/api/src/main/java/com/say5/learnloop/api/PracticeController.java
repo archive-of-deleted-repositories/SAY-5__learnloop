@@ -30,4 +30,9 @@ class PracticeController {
   NextQuestionResponse next(@PathVariable long learnerId, @PathVariable long skillId) {
     return service.next(learnerId, skillId);
   }
+
+  @GetMapping("/reviews/{learnerId}")
+  java.util.List<Long> dueForReview(@PathVariable long learnerId) {
+    return service.dueForReview(learnerId);
+  }
 }
