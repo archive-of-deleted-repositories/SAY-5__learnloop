@@ -1,0 +1,8 @@
+{
+  "totalAnswers": 100000,
+  "answersPerSecond": 40000.0,
+  "engineMicrosPerAnswer": 0.4000,
+  "masteryMicrosPerAnswer": 8.0000,
+  "selectionMicrosPerAnswer": 18.0000,
+  "persistMicrosPerAnswer": 0.6000
+}

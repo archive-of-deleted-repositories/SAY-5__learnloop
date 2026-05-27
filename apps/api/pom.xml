@@ -24,6 +24,8 @@
     <testcontainers.version>1.21.4</testcontainers.version>
     <jqwik.version>1.9.1</jqwik.version>
     <coverage.line.min>0.75</coverage.line.min>
+    <surefire.excludedGroups>bench</surefire.excludedGroups>
+    <surefire.groups></surefire.groups>
   </properties>
 
   <dependencies>
@@ -109,7 +111,10 @@
             <include>**/*Test.java</include>
             <include>**/*Tests.java</include>
             <include>**/*IT.java</include>
+            <include>**/*Bench.java</include>
           </includes>
+          <excludedGroups>${surefire.excludedGroups}</excludedGroups>
+          <groups>${surefire.groups}</groups>
         </configuration>
       </plugin>
 
@@ -191,6 +196,9 @@
       <id>bench</id>
       <properties>
         <coverage.line.min>0.00</coverage.line.min>
+        <surefire.excludedGroups></surefire.excludedGroups>
+        <surefire.groups>bench</surefire.groups>
+        <jacoco.skip>true</jacoco.skip>
       </properties>
     </profile>
 

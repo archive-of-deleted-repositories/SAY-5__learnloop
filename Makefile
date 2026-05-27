@@ -31,10 +31,10 @@ test-web: ## Frontend unit tests
 e2e: ## Playwright end-to-end against docker-compose
 	cd $(WEB) && npm run e2e
 
-bench: ## Run the answer-throughput benchmark
+bench: ## Run the full-scale answer-throughput benchmark (1M submissions)
 	cd $(API) && ./mvnw -B -Pbench test -Dtest=AnswerThroughputBench
 
-bench-regress: ## Fail if throughput regresses beyond threshold
+bench-regress: ## Fail if throughput regresses beyond 30% of baseline
 	cd $(API) && ./mvnw -B -Pbench test -Dtest=BenchRegressionTest
 
 up: ## Start postgres + api + web

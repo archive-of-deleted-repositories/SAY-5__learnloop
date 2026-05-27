@@ -39,11 +39,19 @@ docs        design notes
 ## Quick start
 
 ```sh
-make up         # postgres + api + web via docker-compose
-make test       # backend unit + integration tests (testcontainers)
-make test-web   # frontend unit tests
-make e2e        # Playwright end-to-end against docker-compose
+make up            # postgres + api + web via docker-compose
+make test          # backend unit + integration tests (testcontainers)
+make test-web      # frontend unit tests
+make e2e           # Playwright end-to-end against docker-compose
+make bench         # full-scale answer-throughput benchmark (1M submissions)
+make bench-regress # fail if per-stage cost regresses beyond 30% of baseline
 ```
+
+The benchmark drives 10k learners x 100 answers through the adaptive pipeline
+(Elo update, mastery recompute, next-question selection) and reports answers/sec
+and per-stage timings. The regression gate (`make bench-regress`) runs the same
+pipeline at smoke scale and fails if any stage's per-answer cost grows more than
+30% over the committed baseline.
 
 Backend requires Java 21 and a running Docker daemon (for Testcontainers).
 
