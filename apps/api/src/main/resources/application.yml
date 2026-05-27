@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: learnloop-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/learnloop}
+    username: ${DB_USER:learnloop}
+    password: ${DB_PASSWORD:learnloop}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: ${PORT:8080}
+
+learnloop:
+  engine:
+    k-factor: 32.0
+    default-rating: 1200.0
+  selection:
+    target-success: 0.70
+    cooldown: 5

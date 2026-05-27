@@ -1,0 +1,25 @@
+# Java
+target/
+*.class
+
+# Node
+node_modules/
+dist/
+*.local
+.vite/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+.cache/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Env
+.env
+*.log
