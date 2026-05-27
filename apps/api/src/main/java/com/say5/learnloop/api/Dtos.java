@@ -57,4 +57,18 @@ public final class Dtos {
       List<RosterEntry> roster,
       List<SkillDistribution> distributions,
       List<SkillDistribution> weakestSkills) {}
+
+  public record QuestionDifficultyView(
+      Long questionId, String prompt, int attempts, int correct, double successRate) {}
+
+  public record WeakSkillReport(
+      Long skillId,
+      String skillCode,
+      String skillName,
+      double medianMastery,
+      double failureRate,
+      double struggleScore,
+      List<QuestionDifficultyView> hardestQuestions) {}
+
+  public record CohortAnalytics(String classGroup, List<WeakSkillReport> rankedSkills) {}
 }

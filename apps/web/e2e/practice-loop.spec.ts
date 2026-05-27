@@ -38,4 +38,7 @@ test("a correct streak raises rating and advances mastery", async ({ page }) => 
   await expect(page.getByTestId("distributions")).toBeVisible();
   await expect(page.getByTestId("weakest-skill")).toContainText(/median score/i);
   await expect(page.getByTestId("roster")).toBeVisible();
+
+  // Cohort analytics ranks skills and drills into the hardest items.
+  await expect(page.getByTestId("cohort-ranking")).toBeVisible();
 });

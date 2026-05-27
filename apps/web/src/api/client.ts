@@ -66,6 +66,29 @@ export interface TeacherDashboard {
   weakestSkills: SkillDistribution[];
 }
 
+export interface QuestionDifficultyView {
+  questionId: number;
+  prompt: string;
+  attempts: number;
+  correct: number;
+  successRate: number;
+}
+
+export interface WeakSkillReport {
+  skillId: number;
+  skillCode: string;
+  skillName: string;
+  medianMastery: number;
+  failureRate: number;
+  struggleScore: number;
+  hardestQuestions: QuestionDifficultyView[];
+}
+
+export interface CohortAnalytics {
+  classGroup: string;
+  rankedSkills: WeakSkillReport[];
+}
+
 const BASE = "/api";
 
 async function json<T>(res: Response): Promise<T> {
@@ -106,4 +129,10 @@ export async function fetchTeacherDashboard(
   classGroup: string,
 ): Promise<TeacherDashboard> {
   return json(await fetch(`${BASE}/dashboards/teacher/${classGroup}`));
+}
+
+export async function fetchCohortAnalytics(
+  classGroup: string,
+): Promise<CohortAnalytics> {
+  return json(await fetch(`${BASE}/dashboards/cohort/${classGroup}`));
 }

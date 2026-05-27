@@ -17,4 +17,22 @@ public interface ResponseRepository extends JpaRepository<Response, Long> {
       @Param("learnerId") Long learnerId, @Param("skillId") Long skillId, Pageable pageable);
 
   List<Response> findByLearnerIdAndSkillIdOrderByAnsweredAtAscIdAsc(Long learnerId, Long skillId);
+
+  /** Per-question success counts for a skill, limited to a set of learners (a class). */
+  @Query(
+      "select r.questionId, "
+          + "sum(case when r.correct = true then 1 else 0 end), count(r) "
+          + "from Response r "
+          + "where r.skillId = :skillId and r.learnerId in :learnerIds "
+          + "group by r.questionId")
+  List<Object[]> questionSuccessCounts(
+      @Param("skillId") Long skillId, @Param("learnerIds") List<Long> learnerIds);
+
+  /** Overall correct and total counts for a skill across a class (single grouped row). */
+  @Query(
+      "select sum(case when r.correct = true then 1 else 0 end), count(r) "
+          + "from Response r "
+          + "where r.skillId = :skillId and r.learnerId in :learnerIds")
+  List<Object[]> skillSuccess(
+      @Param("skillId") Long skillId, @Param("learnerIds") List<Long> learnerIds);
 }

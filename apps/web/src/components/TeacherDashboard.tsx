@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchTeacherDashboard } from "../api/client";
+import { CohortAnalytics } from "./CohortAnalytics";
 
 export function TeacherDashboard({ classGroup }: { classGroup: string }) {
   const { data, isLoading } = useQuery({
@@ -53,6 +54,8 @@ export function TeacherDashboard({ classGroup }: { classGroup: string }) {
           </tbody>
         </table>
       </div>
+
+      <CohortAnalytics classGroup={data.classGroup} />
 
       <div className="card">
         <h3>Roster</h3>
